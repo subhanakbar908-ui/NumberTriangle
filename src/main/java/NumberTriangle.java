@@ -114,34 +114,48 @@ public class NumberTriangle {
      */
     public static NumberTriangle loadTriangle(String fname) throws IOException {
         InputStream inputStream = NumberTriangle.class.getClassLoader().getResourceAsStream(fname);
+        if (inputStream == null) {
+            throw new IOException("Resource not found: " + fname);
+        }
         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
 
-        List<NumberTriangle[]> rows = new ArrayList<>();
-        String line;
+        NumberTriangle top = null;
 
-        // Read the file line by line
-        while ((line = br.readLine()) != null) {
-            String[] parts = line.trim().split("\\s+"); // split by whitespace
-            NumberTriangle[] currentRow = new NumberTriangle[parts.length];
-            for (int i = 0; i < parts.length; i++) {
-                currentRow[i] = new NumberTriangle(Integer.parseInt(parts[i]));
+        java.util.List<NumberTriangle> prevRow = null;
+        String line = br.readLine();
+
+        while (line != null) {
+            line = line.trim();
+            if (!line.isEmpty()) {
+                // parse all ints on this line
+                String[] parts = line.split("\\s+");
+                java.util.List<NumberTriangle> currRow = new java.util.ArrayList<>(parts.length);
+
+                for (String p : parts) {
+                    int val = Integer.parseInt(p);
+                    currRow.add(new NumberTriangle(val));
+                }
+
+                // remember the very first node as the top
+                if (top == null) {
+                    top = currRow.get(0);
+                }
+
+                // link previous row to this row
+                if (prevRow != null) {
+                    for (int i = 0; i < prevRow.size(); i++) {
+                        prevRow.get(i).setLeft(currRow.get(i));
+                        prevRow.get(i).setRight(currRow.get(i + 1));
+                    }
+                }
+
+                prevRow = currRow;
             }
-            rows.add(currentRow);
+            line = br.readLine();
         }
+
         br.close();
-
-        // Link the nodes
-        for (int r = 0; r < rows.size() - 1; r++) {
-            NumberTriangle[] currentRow = rows.get(r);
-            NumberTriangle[] nextRow = rows.get(r + 1);
-            for (int i = 0; i < currentRow.length; i++) {
-                currentRow[i].setLeft(nextRow[i]);
-                currentRow[i].setRight(nextRow[i + 1]);
-            }
-        }
-
-        // Return the top of the triangle
-        return rows.get(0)[0];
+        return top;
     }
 
     public static void main(String[] args) throws IOException {
