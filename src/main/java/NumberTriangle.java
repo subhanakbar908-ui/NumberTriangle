@@ -104,31 +104,35 @@ public class NumberTriangle {
      * @throws IOException may naturally occur if an issue reading the file occurs
      */
     public static NumberTriangle loadTriangle(String fname) throws IOException {
-        // open the file and get a BufferedReader object whose methods
-        // are more convenient to work with when reading the file contents.
         InputStream inputStream = NumberTriangle.class.getClassLoader().getResourceAsStream(fname);
         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
 
+        List<NumberTriangle[]> rows = new ArrayList<>();
+        String line;
 
-        // TODO define any variables that you want to use to store things
-
-        // will need to return the top of the NumberTriangle,
-        // so might want a variable for that.
-        NumberTriangle top = null;
-
-        String line = br.readLine();
-        while (line != null) {
-
-            // remove when done; this line is included so running starter code prints the contents of the file
-            System.out.println(line);
-
-            // TODO process the line
-
-            //read the next line
-            line = br.readLine();
+        // Read the file line by line
+        while ((line = br.readLine()) != null) {
+            String[] parts = line.trim().split("\\s+"); // split by whitespace
+            NumberTriangle[] currentRow = new NumberTriangle[parts.length];
+            for (int i = 0; i < parts.length; i++) {
+                currentRow[i] = new NumberTriangle(Integer.parseInt(parts[i]));
+            }
+            rows.add(currentRow);
         }
         br.close();
-        return top;
+
+        // Link the nodes
+        for (int r = 0; r < rows.size() - 1; r++) {
+            NumberTriangle[] currentRow = rows.get(r);
+            NumberTriangle[] nextRow = rows.get(r + 1);
+            for (int i = 0; i < currentRow.length; i++) {
+                currentRow[i].setLeft(nextRow[i]);
+                currentRow[i].setRight(nextRow[i + 1]);
+            }
+        }
+
+        // Return the top of the triangle
+        return rows.get(0)[0];
     }
 
     public static void main(String[] args) throws IOException {
