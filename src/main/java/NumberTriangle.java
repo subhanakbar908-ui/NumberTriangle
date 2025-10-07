@@ -88,20 +88,16 @@ public class NumberTriangle {
      *
      */
     public int retrieve(String path) {
-        NumberTriangle current = this;  // start at the top
-
+        NumberTriangle curr = this;
         for (int i = 0; i < path.length(); i++) {
-            char c = path.charAt(i);
-            if (c == 'l') {
-                current = current.left;
-            } else if (c == 'r') {
-                current = current.right;
-            } else {
-                throw new IllegalArgumentException("Invalid character in path: " + c);
+            char step = path.charAt(i);
+            if (step == 'l') {
+                curr = curr.left;
+            } else { // step == 'r' (per spec, only 'l' or 'r' appear)
+                curr = curr.right;
             }
         }
-
-        return current.getRoot();
+        return curr.root;
     }
 
 
